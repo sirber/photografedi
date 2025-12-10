@@ -4,6 +4,7 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import { useNavigate } from "react-router-dom";
+import { UserNav } from "./UserNav";
 
 export function TopNav() {
   const navigate = useNavigate();
@@ -15,15 +16,16 @@ export function TopNav() {
           <Typography
             variant="h6"
             component="div"
-            sx={{ flexGrow: 1, cursor: 'pointer' }}
-            onClick={() => navigate('/')}
+            sx={{ flexGrow: 1, cursor: "pointer" }}
+            onClick={() => navigate("/")}
           >
             PhotograFedi
           </Typography>
-          <Button color="inherit" onClick={() => navigate('/')}>Home</Button>
+          <Button color="inherit" onClick={() => navigate("/")}>
+            Home
+          </Button>
           <Button color="inherit">About</Button>
-          <Button color="inherit" onClick={() => navigate('/auth/register')}>Register</Button>
-          <Button color="inherit" onClick={() => navigate('/auth/login')}>Login</Button>
+          <UserNav />
         </Toolbar>
       </AppBar>
     </Box>
