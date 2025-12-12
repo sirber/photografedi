@@ -13,18 +13,22 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Sessions + Passport
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'dev-session-secret',
-  resave: false,
-  saveUninitialized: false,
-  cookie: { secure: process.env.NODE_ENV === 'production', sameSite: 'lax' }
-}));
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || 'dev-session-secret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: process.env.NODE_ENV === 'production', sameSite: 'lax' },
+  })
+);
 
 // Allow requests from the frontend with credentials (cookies)
-app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    credentials: true,
+  })
+);
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -35,6 +39,9 @@ app.use('/user', userRouter);
 
 import authRouter from './auth/routes';
 app.use('/auth', authRouter);
+
+import postRouter from './post/routes';
+app.use('/post', postRouter);
 
 // Server
 const port = process.env.PORT || 3001;
