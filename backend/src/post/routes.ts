@@ -15,5 +15,6 @@ router.get('/feed/federated', federatedFeed);
 // Authenticated routes
 router.get('/feed/user', requireAuth, userFeed);
 router.post('/', requireAuth, createPost);
+router.post('/media', requireAuth, upload.single('file'), createAttachment);
 
 export default router;
