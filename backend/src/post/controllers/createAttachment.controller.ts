@@ -3,9 +3,9 @@ import fs from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import type { AuthRequest } from '../../auth/types';
-import AttachmentModel from '../models/attachment.model';
 import { User } from '../../user/models/user.model';
 import type { UserInterface } from '../../user/types/user.interface';
+import { Attachment } from '../models/attachment.model';
 
 type UserLike = Partial<UserInterface> & { _id?: string; id?: string; username?: string };
 
@@ -54,7 +54,7 @@ export async function createAttachment(req: AuthRequest, res: Response) {
     if (!userId) return res.status(401).json({ ok: false, error: 'Not authenticated' });
 
     // Create Attachment document
-    const doc = await AttachmentModel.create({
+    const doc = await Attachment.create({
       user: userId,
       filename: fileName,
       originalName: file.originalname,

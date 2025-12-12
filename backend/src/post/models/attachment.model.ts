@@ -1,17 +1,7 @@
 import mongoose, { Schema } from 'mongoose';
+import type { AttachmentInterface } from '../types/attachement.interface';
 
-export interface AttachmentDocument extends mongoose.Document {
-  user: mongoose.Types.ObjectId;
-  filename: string;
-  originalName?: string;
-  mime?: string;
-  size?: number;
-  visibility?: 'private' | 'public';
-  createdAt?: Date;
-  updatedAt?: Date;
-}
-
-const AttachmentSchema: Schema = new Schema<AttachmentDocument>(
+const AttachmentSchema: Schema = new Schema<AttachmentInterface>(
   {
     user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     filename: { type: String, required: true },
@@ -23,6 +13,4 @@ const AttachmentSchema: Schema = new Schema<AttachmentDocument>(
   { timestamps: true }
 );
 
-export const Attachment = mongoose.model<AttachmentDocument>('Attachment', AttachmentSchema);
-
-export default Attachment;
+export const Attachment = mongoose.model<AttachmentInterface>('Attachment', AttachmentSchema);
