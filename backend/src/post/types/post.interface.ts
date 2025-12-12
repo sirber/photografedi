@@ -31,6 +31,8 @@ export interface PostInterface extends Document {
   bcc?: string[];
   audience?: string[]; // convenience
   attachment?: AttachmentInterface[];
+  // legacy: `attachment` may contain full objects for federation; for local posts use `attachmentIds`
+  attachmentIds?: string[];
   inReplyTo?: string | null;
   replies?: string[]; // array of ActivityPub reply IDs or local refs
   likesCount?: number;

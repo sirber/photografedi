@@ -32,7 +32,10 @@ const PostSchema: Schema = new Schema<PostInterface>(
     bto: { type: [String], default: [] },
     bcc: { type: [String], default: [] },
     audience: { type: [String], default: [] },
+    // embedded attachment objects (used for federation / ActivityPub)
     attachment: { type: [AttachmentSchema], default: [] },
+    // local attachments referenced by id (Attachment documents)
+    attachmentIds: { type: [String], default: [] },
     inReplyTo: { type: String, default: null },
     replies: { type: [String], default: [] },
     likesCount: { type: Number, default: 0 },

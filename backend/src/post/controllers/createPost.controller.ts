@@ -47,6 +47,9 @@ function parsePayload(payload: unknown, actorUsername?: string): Partial<PostInt
       } as AttachmentInterface;
     });
   }
+  if (Array.isArray(p.attachmentIds)) {
+    doc.attachmentIds = p.attachmentIds.map(String);
+  }
   if (typeof p.inReplyTo === 'string') doc.inReplyTo = p.inReplyTo;
   if (Array.isArray(p.replies)) doc.replies = p.replies.map(String);
   if (typeof p.likesCount === 'number') doc.likesCount = p.likesCount;
