@@ -1,31 +1,7 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import  { model, Schema } from 'mongoose';
+import type { UserInterface } from '../types/user.interface';
 
-export interface IUser extends Document {
-  username: string;
-  email: string;
-  password: string;
-  providers?: {
-    google?: { id?: string; profile?: any };
-    microsoft?: { id?: string; profile?: any };
-  };
-  type?: string;
-  preferredUsername?: string;
-  inbox?: string;
-  outbox?: string;
-  followers?: string;
-  following?: string;
-  publicKey?: {
-    id?: string;
-    owner?: string;
-    publicKeyPem?: string;
-  };
-  summary?: string;
-  icon?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-const UserSchema: Schema = new Schema<IUser>(
+const UserSchema: Schema = new Schema<UserInterface>(
   {
     username: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
@@ -57,4 +33,4 @@ const UserSchema: Schema = new Schema<IUser>(
   { timestamps: true }
 );
 
-export const User = mongoose.model<IUser>('User', UserSchema);
+export const User = model<UserInterface>('User', UserSchema);
