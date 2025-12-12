@@ -3,7 +3,7 @@ import type { AuthRequest } from '../../auth/types';
 import { User } from '../../user/models/user.model';
 import type { UserInterface } from '../../user/types/user.interface';
 import { Attachment } from '../models/attachment.model';
-import localRepo from '../repositories/localFile.repository';
+import repo from '../repositories';
 import type { MulterFileWithPath } from '../types/fileStorage.interface';
 
 type UserLike = Partial<UserInterface> & { _id?: string; id?: string; username?: string };
@@ -14,7 +14,7 @@ export async function createAttachment(req: AuthRequest, res: Response) {
     const file = (req as unknown as { file?: MulterFileWithPath }).file;
     if (!file) return res.status(400).json({ ok: false, error: 'No file uploaded' });
 
-    const saved = await localRepo.saveFile(file as MulterFileWithPath);
+    const saved = await repo.saveFile(file as MulterFileWithPath);
     const fileName = saved.filename;
     const url = saved.url;
 

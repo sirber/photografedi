@@ -12,6 +12,12 @@ services:
       - NODE_ENV=development
       - MONGO_URI=mongodb://mongo:27017/photomaton
       - UPLOAD_DIR=/app/uploads
+      - STORAGE=local # set to 's3' to use S3FileRepository
+      - S3_BUCKET= # your-s3-bucket
+      - S3_REGION=us-east-1
+      - S3_BASE_URL= # optional public base url for objects
+      - AWS_ACCESS_KEY_ID=
+      - AWS_SECRET_ACCESS_KEY=
     depends_on:
       - mongo
     restart: unless-stopped
