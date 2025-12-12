@@ -1,7 +1,8 @@
-import type { Request, Response } from 'express';
+import type { Response } from 'express';
 import mongoose from 'mongoose';
 import Post from '../models/post.model';
 import type { PostInterface, AttachmentInterface } from '../types/post.interface';
+import type { AuthRequest } from '../../auth/types';
 
 function parsePayload(payload: unknown, actorUsername?: string): Partial<PostInterface> {
   const p: Record<string, unknown> = (payload as Record<string, unknown>) || {};
@@ -67,10 +68,10 @@ function parsePayload(payload: unknown, actorUsername?: string): Partial<PostInt
 }
 
 // Create a new post from an ActivityPub-like object
-export async function createPost(req: Request, res: Response) {
+export async function createPost(req: AuthRequest, res: Response) {
   try {
     const payload = req.body || {};
-    const actorUsername = (req as unknown as { user?: { username?: string } }).user?.username;
+    const actorUsername = req.user?.username;
     const doc = parsePayload(payload, actorUsername);
 
     // Ensure published timestamp
