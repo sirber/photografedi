@@ -11,6 +11,7 @@ services:
     environment:
       - NODE_ENV=development
       - MONGO_URI=mongodb://mongo:27017/photomaton
+      - UPLOAD_DIR=/app/uploads
     depends_on:
       - mongo
     restart: unless-stopped
