@@ -3,7 +3,7 @@ import type { AuthRequest } from '../../auth/types';
 import { User } from '../../user/models/user.model';
 import type { UserInterface } from '../../user/types/user.interface';
 import { Attachment } from '../models/attachment.model';
-import localRepo from '../repositories/local.repository';
+import localRepo from '../repositories/localFile.repository';
 import type { MulterFileWithPath } from '../types/fileStorage.interface';
 
 type UserLike = Partial<UserInterface> & { _id?: string; id?: string; username?: string };

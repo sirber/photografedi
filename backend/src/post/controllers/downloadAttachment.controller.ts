@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import path from 'path';
-import localRepo from '../repositories/local.repository';
+import localRepo from '../repositories/localFile.repository';
 
 // Serves uploaded files from configured repository (local filesystem for now)
 export default async function downloadAttachment(req: Request, res: Response) {
