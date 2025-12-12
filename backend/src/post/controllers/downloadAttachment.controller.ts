@@ -1,9 +1,9 @@
 import type { Request, Response } from 'express';
-import fs from 'fs';
 import path from 'path';
+import localRepo from '../repositories/local.repository';
 
-// Serves uploaded files from UPLOAD_DIR (or public/uploads fallback) with path traversal protection
-export default function downloadAttachment(req: Request, res: Response) {
+// Serves uploaded files from configured repository (local filesystem for now)
+export default async function downloadAttachment(req: Request, res: Response) {
   try {
     const { filename } = req.params as { filename?: string };
     if (!filename) return res.status(400).json({ ok: false, error: 'Missing filename' });
@@ -13,26 +13,10 @@ export default function downloadAttachment(req: Request, res: Response) {
       return res.status(400).json({ ok: false, error: 'Invalid filename' });
     }
 
-    const uploadsDir = process.env.UPLOAD_DIR
-      ? path.resolve(process.env.UPLOAD_DIR)
-      : path.join(process.cwd(), 'public', 'uploads');
+    const exists = await localRepo.fileExists(filename);
+    if (!exists) return res.status(404).json({ ok: false, error: 'File not found' });
 
-    const filePath = path.join(uploadsDir, filename);
-
-    // Ensure resolved path is inside uploadsDir
-    const resolved = path.resolve(filePath);
-    if (
-      !resolved.startsWith(path.resolve(uploadsDir) + path.sep) &&
-      resolved !== path.resolve(uploadsDir)
-    ) {
-      return res.status(400).json({ ok: false, error: 'Invalid filename' });
-    }
-
-    if (!fs.existsSync(resolved) || !fs.statSync(resolved).isFile()) {
-      return res.status(404).json({ ok: false, error: 'File not found' });
-    }
-
-    const stream = fs.createReadStream(resolved);
+    const stream = localRepo.getFileStream(filename);
     stream.on('open', () => {
       res.setHeader('Content-Disposition', `inline; filename="${path.basename(filename)}"`);
       res.setHeader('Content-Type', 'application/octet-stream');
