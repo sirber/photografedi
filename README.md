@@ -3,14 +3,21 @@
 An [ActivityPub](https://en.wikipedia.org/wiki/ActivityPub) powered photo sharing website!
 Inspired by Flickr and Pixelfed.
 
-## Development
+## Planned Features
 
-### Requirements
+- Home / Local / Federated Feed
+- One photo per post
+- Show EXIF and location, if available
+- Albums and Tags
+
+# Development
+
+## Requirements
 
 - just
 - docker
 
-### Bootstrap
+## Bootstrap
 
 - Launch the development environment: `just dev`
 - Open http://localhost:3000
