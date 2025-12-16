@@ -22,7 +22,7 @@ export default function Feed() {
       <Masonry columns={3} spacing={2}>
         {itemData.map((item, index) => (
           <div key={index}>
-            <Label>{index + 1}</Label>
+            <Label>{item.title}</Label>
             <img
               src={`${item.img}?w=512&auto=format`}
               alt={item.title}
