@@ -1,12 +1,5 @@
 import { API_URL } from "@/constants";
-
-export type AttachmentResult = {
-  id: string;
-  url: string;
-  mediaType?: string;
-  name?: string;
-  size?: number;
-};
+import type { Attachment } from "@/types/Attachement";
 
 export async function uploadAttachment(file: File) {
   const fd = new FormData();
@@ -19,7 +12,7 @@ export async function uploadAttachment(file: File) {
   if (!res.ok) throw new Error(`upload failed ${res.status}`);
   const j = await res.json();
   if (!j.ok) throw new Error(j.error || "upload failed");
-  return j.data as AttachmentResult;
+  return j.data as Attachment;
 }
 
 export default { uploadAttachment };

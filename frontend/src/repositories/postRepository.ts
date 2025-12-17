@@ -1,17 +1,5 @@
 import { API_URL } from "@/constants";
-
-export type CreatePostPayload = {
-  content?: string;
-  visibility?: "public" | "unlisted" | "private" | "direct";
-  published?: string;
-  attachment?: Array<{
-    id: string;
-    url: string;
-    mediaType?: string;
-    name?: string;
-    size?: number;
-  }>;
-};
+import type { CreatePostPayload } from "@/types/Post";
 
 export async function createPost(payload: CreatePostPayload) {
   const res = await fetch(`${API_URL}/post`, {
