@@ -7,7 +7,7 @@ export function Layout({ children }: PropsWithChildren) {
   return (
     <>
       <TopNav />
-      <Box sx={{ marginTop: "4rem" }}>
+      <Box sx={{ marginTop: "6rem" }}>
         <Container maxWidth="lg">{children}</Container>
       </Box>
     </>
