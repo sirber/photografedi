@@ -6,6 +6,7 @@ import NotFound from "@/pages/NotFound";
 import Register from "@/pages/auth/Register";
 import Login from "@/pages/auth/Login";
 import Layout from "@/components/Layout";
+import CreatePost from "@/pages/post/CreatePost";
 
 import "./index.css";
 
@@ -18,6 +19,7 @@ const app = (
           <Route path="/" element={<Index />} />
           <Route path="/auth/register" element={<Register />} />
           <Route path="/auth/login" element={<Login />} />
+          <Route path="/create" element={<CreatePost />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Layout>
