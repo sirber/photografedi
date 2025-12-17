@@ -62,7 +62,5 @@ class LocalFileRepository implements FileStorage {
   }
 }
 
-const localRepository = new LocalFileRepository();
-export default localRepository;
-
+export default LocalFileRepository;
 export { LocalFileRepository };

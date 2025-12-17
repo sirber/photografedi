@@ -136,6 +136,5 @@ class S3FileRepository implements FileStorage {
   }
 }
 
-const s3Repository = new S3FileRepository();
-export default s3Repository;
+export default S3FileRepository;
 export { S3FileRepository };

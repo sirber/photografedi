@@ -1,9 +1,19 @@
-import localRepo from './local.repository';
-import s3Repo from './s3.repository';
+import LocalFileRepository from './local.repository';
+import S3FileRepository from './s3.repository';
+import type { FileStorage } from '../types/fileStorage.interface';
 
 const storage = (process.env.STORAGE || 'local').toLowerCase();
 
-let repo: typeof localRepo | typeof s3Repo = localRepo;
-if (storage === 's3') repo = s3Repo;
+let repo: FileStorage;
+switch (storage) {
+  case 's3':
+    repo = new S3FileRepository();
+    break;
+
+  case 'local':
+  default:
+    repo = new LocalFileRepository();
+    break;
+}
 
 export default repo;

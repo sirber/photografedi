@@ -2,8 +2,12 @@ _help:
     @just --list
 
 # Start development environment
-dev:
-    @docker compose up --build -d
+dev: down
+    @docker compose up --build -d --wait
+
+# Stop development environment
+down:
+    @docker compose down
 
 # Get a shell in the backend container
 cli-back:
