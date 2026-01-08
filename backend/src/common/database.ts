@@ -1,8 +1,20 @@
 import mongoose from 'mongoose';
 
 export async function connectToDatabase() {
-  const dbName = process.env.MONGO_INITDB_DATABASE || 'photomaton';
-  const uri = process.env.MONGO_URI || 'mongodb://localhost:27017/' + dbName;
+  // Prefer explicit init DB name, otherwise try to parse it from MONGO_URI
+  const envDb = process.env.MONGO_INITDB_DATABASE;
+  let dbName = envDb;
+  const uriFromEnv = process.env.MONGO_URI || '';
+  if (!dbName) {
+    try {
+      const match = uriFromEnv.match(/\/([A-Za-z0-9_-]+)(\?|$)/);
+      if (match) dbName = match[1];
+    } catch {
+      // ignore
+    }
+  }
+  dbName = dbName || 'photografedi';
+  const uri = uriFromEnv || 'mongodb://localhost:27017/' + dbName;
 
   try {
     await mongoose.connect(uri, {

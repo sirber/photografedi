@@ -10,7 +10,8 @@ services:
       - ./backend:/app
     environment:
       - NODE_ENV=development
-      - MONGO_URI=mongodb://mongo:27017/photomaton
+      - MONGO_URI=mongodb://mongo:27017/photografedi
+      - MONGO_INITDB_DATABASE=photografedi
       - UPLOAD_DIR=/app/uploads
       - STORAGE=local # set to 's3' to use S3FileRepository
       - S3_BUCKET= # your-s3-bucket
@@ -46,8 +47,6 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
-    environment:
-      - MONGO_INITDB_DATABASE=photomaton
 
 volumes:
   mongo_data:
