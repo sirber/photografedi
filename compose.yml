@@ -42,7 +42,7 @@ services:
     command: sh -c "bun install && bun run dev"
 
   mongo:
-    image: mongo:6
+    image: mongo:8
     ports:
       - "27017:27017"
     volumes:
