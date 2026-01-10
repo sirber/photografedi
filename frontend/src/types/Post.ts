@@ -1,6 +1,6 @@
 export type CreatePostPayload = {
   content?: string;
-  visibility?: "public" | "unlisted" | "private" | "direct";
+  visibility?: 'public' | 'unlisted' | 'private' | 'direct';
   published?: string;
   attachment?: Array<{
     id: string;

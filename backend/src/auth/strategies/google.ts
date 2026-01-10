@@ -1,8 +1,9 @@
 import passport from 'passport';
 import type { Profile } from 'passport';
 import { Strategy as GoogleStrategy, type VerifyCallback } from 'passport-google-oauth20';
-import { User } from '../../user/models/user.model';
-import type { UserInterface } from '../../user/types/user.interface';
+import { db } from '@/db/index';
+import { users } from '@/db/schema';
+import { eq, sql } from 'drizzle-orm';
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || '';
@@ -25,27 +26,45 @@ if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET) {
           const email = profile?.emails?.[0]?.value as string | undefined;
           const providerId = profile?.id;
 
-          // Try find by provider id
-          let user = await User.findOne({ 'providers.google.id': providerId }).exec();
+          // Try find by provider id using JSONB path, fallback to email
+          let rows = await db
+            .select()
+            .from(users)
+            .where(sql`providers->'google'->>'id' = ${providerId}`)
+            .limit(1);
+          let user = rows[0];
+
           if (!user && email) {
-            // Try find by verified email
-            user = await User.findOne({ email }).exec();
+            const byEmail = await db.select().from(users).where(eq(users.email, email)).limit(1);
+            user = byEmail[0];
           }
 
           if (!user) {
-            user = new User({
-              username: email || `google-${providerId}`,
-              email: email || '',
-              password: '',
-              providers: { google: { id: providerId, profile } },
-            } as Partial<UserInterface>);
-            await user.save();
+            const providersObj: Record<string, unknown> = { google: { id: providerId, profile } };
+            const insert = await db
+              .insert(users)
+              .values({
+                username: email || `google-${providerId}`,
+                email: email || '',
+                password: '',
+                providers: providersObj,
+              })
+              .returning();
+            user = insert[0];
           } else {
-            user.set(`providers.google`, { id: providerId, profile });
-            await user.save();
+            // merge providers object
+            const existingProviders = (user.providers as Record<string, unknown> | null) ?? {};
+            const merged = { ...existingProviders, google: { id: providerId, profile } };
+            await db
+              .update(users)
+              .set({ providers: merged as Record<string, unknown> })
+              .where(eq(users.id, user.id));
+            // reload user
+            const reloaded = await db.select().from(users).where(eq(users.id, user.id)).limit(1);
+            user = reloaded[0];
           }
 
-          done(null, user);
+          done(null, user as Express.User);
         } catch (err) {
           const error = err instanceof Error ? err : new Error(String(err));
           done(error);

@@ -4,10 +4,6 @@ import session from 'express-session';
 import passport from './auth/passport';
 const app = express();
 
-// Database
-import { connectToDatabase } from './common/database';
-await connectToDatabase();
-
 // Body parsing
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

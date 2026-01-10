@@ -10,8 +10,7 @@ services:
       - ./backend:/app
     environment:
       - NODE_ENV=development
-      - MONGO_URI=mongodb://mongo:27017/photografedi
-      - MONGO_INITDB_DATABASE=photografedi
+      - DATABASE_URL=postgresql://admin:photografedi@localhost:5432/photografedi
       - UPLOAD_DIR=/app/uploads
       - STORAGE=local # set to 's3' to use S3FileRepository
       - S3_BUCKET= # your-s3-bucket
@@ -20,7 +19,7 @@ services:
       - AWS_ACCESS_KEY_ID=
       - AWS_SECRET_ACCESS_KEY=
     depends_on:
-      - mongo
+      - db
     restart: unless-stopped
     command: sh -c "bun install && bun run dev"
 
@@ -41,12 +40,14 @@ services:
     restart: unless-stopped
     command: sh -c "bun install && bun run dev"
 
-  mongo:
-    image: mongo:8
-    ports:
-      - "27017:27017"
+  db:
+    image: postgres:18-alpine
+    restart: always
+    shm_size: 128mb
     volumes:
-      - mongo_data:/data/db
+      - pg_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: photografedi
 
 volumes:
-  mongo_data:
+  pg_data:

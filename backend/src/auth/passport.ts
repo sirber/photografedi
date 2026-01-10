@@ -1,17 +1,17 @@
 import passport from 'passport';
-import { User } from '../user/models/user.model';
-import type { UserInterface } from '../user/types/user.interface';
 import './strategies/local';
 import './strategies/google';
 import './strategies/microsoft';
+import { db } from '@/db/index';
+import { users } from '@/db/schema';
+import { eq } from 'drizzle-orm';
 
-passport.serializeUser(function (user: Express.User | UserInterface, done) {
-  // store the user id in the session
+passport.serializeUser(function (user: Express.User, done) {
+  // Expect `user` to contain an `id` property from the database result.
   const uObj = user as Record<string, unknown> | undefined;
-  let id: unknown;
+  let id: unknown = undefined;
   if (uObj && typeof uObj === 'object') {
-    if ('_id' in uObj) id = uObj['_id'];
-    else if ('id' in uObj) id = uObj['id'];
+    if ('id' in uObj) id = uObj['id'];
   }
   if (id === undefined) id = user;
   if (typeof id !== 'string' && typeof id !== 'number') id = String(id);
@@ -20,8 +20,13 @@ passport.serializeUser(function (user: Express.User | UserInterface, done) {
 
 passport.deserializeUser(async function (id: string, done) {
   try {
-    const user = await User.findById(id).exec();
-    done(null, user as UserInterface | null);
+    const row = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, Number(id)))
+      .limit(1);
+    const user = row[0] ?? null;
+    done(null, user);
   } catch (err) {
     done(err as Error);
   }

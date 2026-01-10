@@ -1,8 +1,9 @@
 import passport from 'passport';
 import type { Profile } from 'passport';
 import { Strategy as MicrosoftStrategy } from 'passport-microsoft';
-import { User } from '../../user/models/user.model';
-import type { UserInterface } from '../../user/types/user.interface';
+import { db } from '@/db/index';
+import { users } from '@/db/schema';
+import { eq, sql } from 'drizzle-orm';
 
 const MICROSOFT_CLIENT_ID = process.env.MICROSOFT_CLIENT_ID || '';
 const MICROSOFT_CLIENT_SECRET = process.env.MICROSOFT_CLIENT_SECRET || '';
@@ -26,23 +27,44 @@ if (MICROSOFT_CLIENT_ID && MICROSOFT_CLIENT_SECRET) {
           const email = profile?.emails?.[0]?.value as string | undefined;
           const providerId = profile?.id;
 
-          let user = await User.findOne({ 'providers.microsoft.id': providerId }).exec();
-          if (!user && email) user = await User.findOne({ email }).exec();
+          let rows = await db
+            .select()
+            .from(users)
+            .where(sql`providers->'microsoft'->>'id' = ${providerId}`)
+            .limit(1);
+          let user = rows[0];
 
-          if (!user) {
-            user = new User({
-              username: email || `ms-${providerId}`,
-              email: email || '',
-              password: '',
-              providers: { microsoft: { id: providerId, profile } },
-            } as Partial<UserInterface>);
-            await user.save();
-          } else {
-            user.set(`providers.microsoft`, { id: providerId, profile });
-            await user.save();
+          if (!user && email) {
+            const byEmail = await db.select().from(users).where(eq(users.email, email)).limit(1);
+            user = byEmail[0];
           }
 
-          done(null, user);
+          if (!user) {
+            const providersObj: Record<string, unknown> = {
+              microsoft: { id: providerId, profile },
+            };
+            const insert = await db
+              .insert(users)
+              .values({
+                username: email || `ms-${providerId}`,
+                email: email || '',
+                password: '',
+                providers: providersObj,
+              })
+              .returning();
+            user = insert[0];
+          } else {
+            const existingProviders = (user.providers as Record<string, unknown> | null) ?? {};
+            const merged = { ...existingProviders, microsoft: { id: providerId, profile } };
+            await db
+              .update(users)
+              .set({ providers: merged as Record<string, unknown> })
+              .where(eq(users.id, user.id));
+            const reloaded = await db.select().from(users).where(eq(users.id, user.id)).limit(1);
+            user = reloaded[0];
+          }
+
+          done(null, user as Express.User);
         } catch (err) {
           const error = err instanceof Error ? err : new Error(String(err));
           done(error);
