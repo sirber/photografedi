@@ -24,10 +24,10 @@ if (MICROSOFT_CLIENT_ID && MICROSOFT_CLIENT_SECRET) {
         done: (err: Error | null, user?: Express.User | false | null) => void
       ) {
         try {
-          const email = profile?.emails?.[0]?.value as string | undefined;
+          const email = profile?.emails?.[0]?.value;
           const providerId = profile?.id;
 
-          let rows = await db
+          const rows = await db
             .select()
             .from(users)
             .where(sql`providers->'microsoft'->>'id' = ${providerId}`)

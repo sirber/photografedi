@@ -14,7 +14,7 @@ export async function createAttachment(req: AuthRequest, res: Response) {
     const file = (req as unknown as { file?: MulterFileWithPath }).file;
     if (!file) return res.status(400).json({ ok: false, error: 'No file uploaded' });
 
-    const saved = await repo.saveFile(file as MulterFileWithPath);
+    const saved = await repo.saveFile(file);
     const fileName = saved.filename;
     const url = saved.url;
 

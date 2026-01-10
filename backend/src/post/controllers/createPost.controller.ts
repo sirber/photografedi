@@ -90,7 +90,7 @@ export async function createPost(req: AuthRequest, res: Response) {
         return res.status(409).json({ ok: false, error: 'Post with this id already exists' });
     }
 
-    const created = await Post.create(doc as Partial<PostInterface>);
+    const created = await Post.create(doc);
     return res.status(201).json({ ok: true, data: created });
   } catch (err) {
     console.error('createPost error', err);

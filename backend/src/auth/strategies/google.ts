@@ -23,11 +23,11 @@ if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET) {
         done: VerifyCallback
       ) {
         try {
-          const email = profile?.emails?.[0]?.value as string | undefined;
+          const email = profile?.emails?.[0]?.value;
           const providerId = profile?.id;
 
           // Try find by provider id using JSONB path, fallback to email
-          let rows = await db
+          const rows = await db
             .select()
             .from(users)
             .where(sql`providers->'google'->>'id' = ${providerId}`)

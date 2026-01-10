@@ -28,7 +28,7 @@ export default function CreatePost() {
   const [saving, setSaving] = useState(false);
 
   const handleVisibility = (e: SelectChangeEvent) => {
-    setVisibility(e.target.value as string);
+    setVisibility(e.target.value);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {

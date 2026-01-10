@@ -9,7 +9,7 @@ export default function meController(req: Request, res: Response) {
   const u: { id?: string; email?: string } = {};
   const uObj = maybeUser as Record<string, unknown>;
   if ('id' in uObj) u.id = String(uObj['id']);
-  if ('email' in uObj && typeof uObj['email'] === 'string') u.email = uObj['email'] as string;
+  if ('email' in uObj && typeof uObj['email'] === 'string') u.email = uObj['email'];
 
   return res.json({ ok: true, user: u });
 }
