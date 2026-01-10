@@ -30,8 +30,8 @@ prettier:
 # Run ESLint across frontend and backend (uses local tsconfig in each package)
 [group('app')]
 eslint:
-    @cd backend && bunx eslint 'src/**/*.{ts,js}' --fix || true
-    @cd frontend && bunx eslint 'src/**/*.{ts,js,tsx}' --fix || true
+    @cd backend && bunx eslint --fix || true
+    @cd frontend && bunx eslint --fix || true
 
 # Run TypeScript type checking across frontend and backend
 [group('app')]
