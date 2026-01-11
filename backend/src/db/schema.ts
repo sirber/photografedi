@@ -9,7 +9,6 @@ import {
   pgEnum,
   uniqueIndex,
   type AnyPgColumn,
-  unique,
   index,
 } from 'drizzle-orm/pg-core';
 
