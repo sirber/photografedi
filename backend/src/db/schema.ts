@@ -1,12 +1,16 @@
 import {
   pgTable,
-  serial,
+  uuid,
   varchar,
   text,
   integer,
   jsonb,
   timestamp,
   pgEnum,
+  uniqueIndex,
+  type AnyPgColumn,
+  unique,
+  index,
 } from 'drizzle-orm/pg-core';
 
 // Enums
@@ -19,31 +23,32 @@ export const postVisibility = pgEnum('post_visibility', [
   'direct',
 ]);
 
-// Users table (converted from Mongoose User model)
-export const users = pgTable('users', {
-  id: serial('id').primaryKey(),
-  username: varchar('username', { length: 255 }).notNull(),
-  email: varchar('email', { length: 255 }).notNull(),
-  password: text('password').notNull(),
-  type: varchar('type', { length: 100 }).default('Person'),
-  preferred_username: varchar('preferred_username', { length: 255 }),
-  inbox: text('inbox'),
-  outbox: text('outbox'),
-  followers: text('followers'),
-  following: text('following'),
-  // store structured objects as JSONB
-  public_key: jsonb('public_key'),
-  providers: jsonb('providers'),
-  summary: text('summary'),
-  icon: text('icon'),
-  created_at: timestamp('created_at').defaultNow(),
-  updated_at: timestamp('updated_at').defaultNow(),
-});
+// Tables
+export const users = pgTable(
+  'users',
+  {
+    id: uuid('id').primaryKey(),
+    email: varchar('email', { length: 255 }).notNull().unique(),
+    password: text('password').notNull(),
+    type: varchar('type', { length: 100 }).default('Person'),
+    preferred_username: varchar('preferred_username', { length: 255 }),
+    inbox: text('inbox'),
+    outbox: text('outbox'),
+    followers: text('followers'),
+    following: text('following'),
+    public_key: jsonb('public_key'),
+    providers: jsonb('providers'),
+    summary: text('summary'),
+    icon: text('icon'),
+    created_at: timestamp('created_at').defaultNow(),
+    updated_at: timestamp('updated_at').defaultNow(),
+  },
+  (table) => [uniqueIndex('email_idx').on(table.email)]
+);
 
-// Attachments table (converted from Mongoose Attachment model)
 export const attachments = pgTable('attachments', {
-  id: serial('id').primaryKey(),
-  user_id: integer('user_id')
+  id: uuid('id').primaryKey(),
+  user_id: uuid('user_id')
     .references(() => users.id)
     .notNull(),
   filename: text('filename').notNull(),
@@ -55,43 +60,54 @@ export const attachments = pgTable('attachments', {
   updated_at: timestamp('updated_at').defaultNow(),
 });
 
-// Posts table (converted from Mongoose Post model)
-// - flexible fields (arrays, embedded attachments, raw activity) are stored as JSONB
-export const posts = pgTable('posts', {
-  id: serial('id').primaryKey(),
-  // ActivityPub id (URL) - corresponds to Mongoose `id` field
-  ap_id: text('ap_id'),
-  url: text('url'),
-  type: varchar('type', { length: 100 }).default('Note'),
-  published: timestamp('published'),
-  updated: timestamp('updated'),
-  attributed_to: text('attributed_to'),
-  actor: text('actor'),
-  content: text('content'),
-  summary: text('summary'),
-  // store lists and embedded objects as jsonb for flexibility
-  to: jsonb('to').default('[]'),
-  cc: jsonb('cc').default('[]'),
-  bto: jsonb('bto').default('[]'),
-  bcc: jsonb('bcc').default('[]'),
-  audience: jsonb('audience').default('[]'),
-  // embedded attachment objects (for federation)
-  attachment: jsonb('attachment').default('[]'),
-  // local attachment ids (references to attachments table by id or external ids)
-  attachment_ids: jsonb('attachment_ids').default('[]'),
-  in_reply_to: text('in_reply_to'),
-  replies: jsonb('replies').default('[]'),
-  likes_count: integer('likes_count').default(0),
-  shares_count: integer('shares_count').default(0),
-  visibility: postVisibility('visibility').default('public'),
-  origin: text('origin'),
-  raw: jsonb('raw'),
-  created_at: timestamp('created_at').defaultNow(),
-  updated_at: timestamp('updated_at').defaultNow(),
-});
+export const posts = pgTable(
+  'posts',
+  {
+    id: uuid('id').primaryKey(),
+    parent_id: uuid('parent_id').references((): AnyPgColumn => posts.id),
+    thread_id: uuid('thread_id'),
+    url: text('url'),
+    type: varchar('type', { length: 100 }).default('Note'),
+    published: timestamp('published'),
+    updated: timestamp('updated'),
+    attributed_to: text('attributed_to'),
+    actor: text('actor'),
+    content: text('content'),
+    summary: text('summary'),
+    to: jsonb('to').default('[]'),
+    cc: jsonb('cc').default('[]'),
+    bto: jsonb('bto').default('[]'),
+    bcc: jsonb('bcc').default('[]'),
+    audience: jsonb('audience').default('[]'),
+    in_reply_to: text('in_reply_to'),
+    likes_count: integer('likes_count').default(0),
+    shares_count: integer('shares_count').default(0),
+    visibility: postVisibility('visibility').default('public'),
+    origin: text('origin'),
+    raw: jsonb('raw'),
+    created_at: timestamp('created_at').defaultNow(),
+    updated_at: timestamp('updated_at').defaultNow(),
+  },
+  (table) => [
+    index('thread_id_idx').on(table.thread_id),
+    index('posts_published_brin_idx').on(table.published),
+  ]
+);
 
-// Note: unique constraints and additional indexes (for example on `username`, `email`, and `ap_id`)
-// can be added via Drizzle migration files or by using the `index` / `uniqueIndex` helpers
-// depending on how you want to enforce them in Postgres. This file focuses on porting
-// the shape of the data from the Mongoose models to Drizzle/PG types.
-// TODO: migrate schema to PostgreSQL using Drizzle ORM
+export const postAttachments = pgTable(
+  'post_attachments',
+  {
+    id: uuid('id').primaryKey(),
+    post_id: uuid('post_id')
+      .references(() => posts.id)
+      .notNull(),
+    attachment_id: uuid('attachment_id')
+      .references(() => attachments.id)
+      .notNull(),
+    position: integer('position'),
+    created_at: timestamp('created_at').defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('post_attachment_post_attachment_unique').on(table.post_id, table.attachment_id),
+  ]
+);
