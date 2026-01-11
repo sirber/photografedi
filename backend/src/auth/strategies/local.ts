@@ -6,18 +6,26 @@ import { users } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 
 passport.use(
-  new LocalStrategy({ usernameField: 'email' }, async (email, password, done) => {
-    try {
-      const rows = await db.select().from(users).where(eq(users.email, email)).limit(1);
-      const user = rows[0];
-      if (!user) return done(null, false, { message: 'Incorrect email.' });
+  new LocalStrategy({ usernameField: 'email' }, (email, password, done) => {
+    void (async () => {
+      try {
+        const rows = await db.select().from(users).where(eq(users.email, email)).limit(1);
+        const user = rows[0];
+        if (!user) {
+          done(null, false, { message: 'Incorrect email.' });
+          return;
+        }
 
-      const match = await bcrypt.compare(password, String(user.password));
-      if (!match) return done(null, false, { message: 'Incorrect password.' });
+        const match = await bcrypt.compare(password, String(user.password));
+        if (!match) {
+          done(null, false, { message: 'Incorrect password.' });
+          return;
+        }
 
-      return done(null, user as Express.User);
-    } catch (err) {
-      return done(err as Error);
-    }
+        done(null, user as Express.User);
+      } catch (err) {
+        done(err as Error);
+      }
+    })();
   })
 );

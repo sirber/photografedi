@@ -18,18 +18,18 @@ passport.serializeUser(function (user: Express.User, done) {
   done(null, String(id));
 });
 
-passport.deserializeUser(async function (id: string, done) {
-  try {
-    const row = await db
-      .select()
-      .from(users)
-      .where(eq(users.id, Number(id)))
-      .limit(1);
-    const user = row[0] ?? null;
-    done(null, user);
-  } catch (err) {
-    done(err as Error);
-  }
+passport.deserializeUser(function (id: string, done) {
+  db.select()
+    .from(users)
+    .where(eq(users.id, id))
+    .limit(1)
+    .then((row) => {
+      const user = row[0] ?? null;
+      done(null, user);
+    })
+    .catch((err) => {
+      done(err as Error);
+    });
 });
 
 export default passport;
